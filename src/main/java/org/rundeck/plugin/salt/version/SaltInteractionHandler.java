@@ -15,5 +15,7 @@ public interface SaltInteractionHandler {
      * @return the SaltApiResponseOutput corresponding to a successful invocation
      * @throws SaltApiException if no response is found. 
      */
-    SaltApiResponseOutput extractOutputForJobSubmissionResponse(String json) throws SaltApiException;
+    SaltApiResponseOutput extractOutputForJobSubmissionResponse(String json) throws SaltApiException;	
+	
+	String extractJidForJobSubmissionResponse(String json) throws SaltApiException;	
 }

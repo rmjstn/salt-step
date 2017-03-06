@@ -35,4 +35,9 @@ public class Pre082SaltInteractionHandler implements SaltInteractionHandler {
         Map<String, Object> responseMap = responses.get(0);
         return gson.fromJson(responseMap.get(SALT_OUTPUT_RETURN_KEY).toString(), SaltApiResponseOutput.class);
     }
+	
+	@Override
+	public String extractJidForJobSubmissionResponse(String json) throws SaltApiException {
+		return "";
+	}
 }

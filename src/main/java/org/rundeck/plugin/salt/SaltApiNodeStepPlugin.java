@@ -342,22 +342,26 @@ public class SaltApiNodeStepPlugin implements NodeStepPlugin {
                         HttpStatus.SC_ACCEPTED, HttpStatus.SC_OK, statusCode, entityResponse));
             } else {
                 logWrapper.debug("Received response for job submission = %s", response);
-				logWrapper.debug("AAAAAAAAAAAAAAAA");
-                SaltInteractionHandler interactionHandler = capability.getSaltInteractionHandler();
-				logWrapper.debug("BBBBBBBBBBBBBBBB");
-                SaltApiResponseOutput saltOutput = interactionHandler.extractOutputForJobSubmissionResponse(entityResponse);
-				logWrapper.debug("CCCCCCCCCCCCCCCC");
-				logWrapper.debug("saltOutput.getMinions() [%s]", saltOutput.getMinions());
-                if (saltOutput.getMinions().size() != 1) {
-                    throw new SaltTargettingMismatchException(String.format(
-                            "Expected minion delegation count of 1, was %d. Full minion string: (%s)", saltOutput
-                                    .getMinions().size(), saltOutput.getMinions()));
-                } else if (!saltOutput.getMinions().contains(minionId)) {
-                    throw new SaltTargettingMismatchException(String.format(
-                            "Minion dispatch mis-match. Expected:%s,  was:%s", minionId, saltOutput.getMinions()
-                                    .toString()));
-                }
-                return saltOutput.getJid();
+			    SaltInteractionHandler interactionHandler = capability.getSaltInteractionHandler();
+				String jid=null;
+				if ("state.orchestrate".equalsIgnoreCase(args.get(0))) {
+				    jid = interactionHandler.extractJidForJobSubmissionResponse(entityResponse);				    
+				} else {
+					SaltApiResponseOutput saltOutput = interactionHandler.extractOutputForJobSubmissionResponse(entityResponse);
+					logWrapper.debug("saltOutput.getMinions() [%s]", saltOutput.getMinions());
+					if (saltOutput.getMinions().size() != 1) {
+						throw new SaltTargettingMismatchException(String.format(
+								"Expected minion delegation count of 1, was %d. Full minion string: (%s)", saltOutput
+										.getMinions().size(), saltOutput.getMinions()));
+					} else if (!saltOutput.getMinions().contains(minionId)) {
+						throw new SaltTargettingMismatchException(String.format(
+								"Minion dispatch mis-match. Expected:%s,  was:%s", minionId, saltOutput.getMinions()
+										.toString()));
+					}
+					jid=saltOutput.getJid();
+				} 
+				logWrapper.debug("jid = %s", jid);
+                return jid;
             }
         } finally {
             closeResource(entity);
