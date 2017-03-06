@@ -26,8 +26,10 @@ public class LatestSaltInteractionHandler implements SaltInteractionHandler {
          * "/jobs/20130903200912838566"}]}, "return": [{"jid":
          * "20130903200912838566", "minions": ["host1", "host2"]}]}
          */
+		System.out.println("LatestSaltInteractionHandler json : " + json);
         Gson gson = new Gson();
         Map<String, Object> responses = gson.fromJson(json, MINION_RESPONSE_TYPE);
+		System.out.println("responses : " + responses);
         List<SaltApiResponseOutput> saltOutputs = gson.fromJson(responses.get(SALT_OUTPUT_RETURN_KEY).toString(),
                                                                 LIST_OF_SALT_API_RESPONSE_TYPE);
         if (saltOutputs.size() != 1) {

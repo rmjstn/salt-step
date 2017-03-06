@@ -299,6 +299,15 @@ public class SaltApiNodeStepPlugin implements NodeStepPlugin {
         List<String> args = ArgumentParser.DEFAULT_ARGUMENT_SPLITTER.parse(function);
         params.add(new BasicNameValuePair(SALT_API_FUNCTION_PARAM_NAME, args.get(0)));
         params.add(new BasicNameValuePair(SALT_API_TARGET_PARAM_NAME, minionId));
+
+		String resource = MINION_RESOURCE;
+		if ("state.orchestrate".equalsIgnoreCase(args.get(0))) {
+		   resource = "/run";
+		   params.add(new BasicNameValuePair("client", "runner"));
+		   params.add(new BasicNameValuePair("username", "rundeck"));
+		   params.add(new BasicNameValuePair("password", "rundeck"));
+		   params.add(new BasicNameValuePair("eauth", "pam"));
+		}
         
         List<NameValuePair> printableParams = Lists.newArrayList();
         printableParams.addAll(params);
@@ -314,7 +323,7 @@ public class SaltApiNodeStepPlugin implements NodeStepPlugin {
         postEntity.setContentEncoding(CHAR_SET_ENCODING);
         postEntity.setContentType(REQUEST_CONTENT_TYPE);
 
-        HttpPost post = httpFactory.createHttpPost(saltEndpoint + MINION_RESOURCE);
+        HttpPost post = httpFactory.createHttpPost(saltEndpoint + resource);
         post.setHeader(SALT_AUTH_TOKEN_HEADER, authToken);
         post.setHeader(REQUEST_ACCEPT_HEADER_NAME, JSON_RESPONSE_ACCEPT_TYPE);
         post.setEntity(postEntity);
@@ -327,13 +336,18 @@ public class SaltApiNodeStepPlugin implements NodeStepPlugin {
         HttpEntity entity = response.getEntity();
         try {
             String entityResponse = extractBodyFromEntity(entity);
-            if (statusCode != HttpStatus.SC_ACCEPTED) {
-                throw new HttpException(String.format("Expected response code %d, received %d. %s",
-                        HttpStatus.SC_ACCEPTED, statusCode, entityResponse));
+			logWrapper.debug("entityResponse = %s", entityResponse);
+            if ((statusCode != HttpStatus.SC_ACCEPTED)&&(statusCode != HttpStatus.SC_OK)) {
+                throw new HttpException(String.format("Expected response code %d or %d, received %d. %s",
+                        HttpStatus.SC_ACCEPTED, HttpStatus.SC_OK, statusCode, entityResponse));
             } else {
                 logWrapper.debug("Received response for job submission = %s", response);
+				logWrapper.debug("AAAAAAAAAAAAAAAA");
                 SaltInteractionHandler interactionHandler = capability.getSaltInteractionHandler();
+				logWrapper.debug("BBBBBBBBBBBBBBBB");
                 SaltApiResponseOutput saltOutput = interactionHandler.extractOutputForJobSubmissionResponse(entityResponse);
+				logWrapper.debug("CCCCCCCCCCCCCCCC");
+				logWrapper.debug("saltOutput.getMinions() [%s]", saltOutput.getMinions());
                 if (saltOutput.getMinions().size() != 1) {
                     throw new SaltTargettingMismatchException(String.format(
                             "Expected minion delegation count of 1, was %d. Full minion string: (%s)", saltOutput

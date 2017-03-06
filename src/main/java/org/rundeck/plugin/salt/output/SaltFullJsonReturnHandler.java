@@ -77,6 +77,7 @@ public class SaltFullJsonReturnHandler implements SaltReturnHandler {
      */
     @Override
     public SaltReturnResponse extractResponse(String rawResponse) throws SaltReturnResponseParseException {
+	System.out.println("rawResponse " + rawResponse);
         try {
             Gson gson = new Gson();
 	    Object result = gson.fromJson(rawResponse, Object.class);
