@@ -392,6 +392,7 @@ public class SaltApiNodeStepPlugin implements NodeStepPlugin {
         logWrapper.info("Polling for job status with salt-api endpoint: [%s]", jidResource);
         do {
             String response = extractOutputForJid(client, authToken, jid, minionId);
+			logWrapper.debug("waitForJidResponse - response: [%s]", response);
             if (response != null) {
                 return response;
             }
@@ -416,11 +417,13 @@ public class SaltApiNodeStepPlugin implements NodeStepPlugin {
         get.setHeader(REQUEST_ACCEPT_HEADER_NAME, JSON_RESPONSE_ACCEPT_TYPE);
         
         HttpResponse response = retryExecutor.execute(logWrapper, client, get, numRetries);
-        
+        logWrapper.debug("extractOutputForJid - response.getStatusLine().getStatusCode(): [%s]", response.getStatusLine().getStatusCode());
+		
         try {
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 HttpEntity entity = response.getEntity();
                 String entityResponse = extractBodyFromEntity(entity);
+				logWrapper.debug("extractOutputForJid - entityResponse: [%s]", entityResponse);
                 Gson gson = new Gson();
                 Map<String, List<Map<String, Object>>> result = gson.fromJson(entityResponse, JOB_RESPONSE_TYPE);
                 List<Map<String, Object>> responses = result.get(SALT_OUTPUT_RETURN_KEY);
