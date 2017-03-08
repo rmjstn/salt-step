@@ -37,7 +37,7 @@ public class Pre082SaltInteractionHandler implements SaltInteractionHandler {
     }
 	
 	@Override
-	public String extractJidForJobSubmissionResponse(String json) throws SaltApiException {
+	public String extractRetCodeForJobSubmissionResponse(String json) throws SaltApiException {
 		return "";
 	}
 }

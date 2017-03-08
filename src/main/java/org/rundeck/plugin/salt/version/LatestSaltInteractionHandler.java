@@ -45,11 +45,11 @@ public class LatestSaltInteractionHandler implements SaltInteractionHandler {
     }
 
 	@Override
-	public String extractJidForJobSubmissionResponse(String json) throws SaltApiException {
+	public String extractRetCodeForJobSubmissionResponse(String json) throws SaltApiException {
         Gson gson = new Gson();
 	    Object result = gson.fromJson(json, Object.class);
 	
-        List<String> results=getValues(result, "__jid__");
+        List<String> results=getValues(result, "retcode");
 		if (results.size() == 0) {
 			throw new SaltApiException(String.format("Could not understand salt response %s", json));
 		}

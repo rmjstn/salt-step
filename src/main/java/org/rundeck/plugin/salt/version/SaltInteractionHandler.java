@@ -17,5 +17,5 @@ public interface SaltInteractionHandler {
      */
     SaltApiResponseOutput extractOutputForJobSubmissionResponse(String json) throws SaltApiException;	
 	
-	String extractJidForJobSubmissionResponse(String json) throws SaltApiException;	
+	String extractRetCodeForJobSubmissionResponse(String json) throws SaltApiException;	
 }

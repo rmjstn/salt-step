@@ -234,13 +234,19 @@ public class SaltApiNodeStepPlugin implements NodeStepPlugin {
             }
 
             Set<String> secureData = extractSecureDataFromDataContext(context.getDataContext());
-            String dispatchedJid = submitJob(capability, client, authToken, entry.getNodename(), secureData);
-            logWrapper.info("Received jid [%s] for submitted job", dispatchedJid);
-            String jobOutput = waitForJidResponse(client, authToken, dispatchedJid, entry.getNodename());
-            SaltReturnHandler handler = returnHandlerRegistry.getHandlerFor(function.split(" ", 2)[0],
-                    defaultReturnHandler);
-            logWrapper.debug("Using [%s] as salt's response handler", handler);
-            SaltReturnResponse response = handler.extractResponse(jobOutput);
+			String ret = submitJob(capability, client, authToken, entry.getNodename(), secureData);
+			SaltReturnResponse response = null;
+			if ("state.orchestrate".equalsIgnoreCase(ArgumentParser.DEFAULT_ARGUMENT_SPLITTER.parse(function).get(0))) {
+			    response = new SaltReturnResponse();
+				response.setExitCode(Double.valueOf(ret).intValue());
+			} else {
+				String dispatchedJid = ret;
+				logWrapper.info("Received jid [%s] for submitted job", dispatchedJid);
+				String jobOutput = waitForJidResponse(client, authToken, dispatchedJid, entry.getNodename());
+				SaltReturnHandler handler = returnHandlerRegistry.getHandlerFor(function.split(" ", 2)[0], defaultReturnHandler);
+				logWrapper.debug("Using [%s] as salt's response handler", handler);
+				response = handler.extractResponse(jobOutput);
+			}
 
             for (String out : response.getStandardOutput()) {
                 logWrapper.info(out);
@@ -343,9 +349,9 @@ public class SaltApiNodeStepPlugin implements NodeStepPlugin {
             } else {
                 logWrapper.debug("Received response for job submission = %s", response);
 			    SaltInteractionHandler interactionHandler = capability.getSaltInteractionHandler();
-				String jid=null;
+				String ret=null;
 				if ("state.orchestrate".equalsIgnoreCase(args.get(0))) {
-				    jid = interactionHandler.extractJidForJobSubmissionResponse(entityResponse);				    
+				    ret = interactionHandler.extractRetCodeForJobSubmissionResponse(entityResponse);				    
 				} else {
 					SaltApiResponseOutput saltOutput = interactionHandler.extractOutputForJobSubmissionResponse(entityResponse);
 					logWrapper.debug("saltOutput.getMinions() [%s]", saltOutput.getMinions());
@@ -358,10 +364,10 @@ public class SaltApiNodeStepPlugin implements NodeStepPlugin {
 								"Minion dispatch mis-match. Expected:%s,  was:%s", minionId, saltOutput.getMinions()
 										.toString()));
 					}
-					jid=saltOutput.getJid();
+					ret=saltOutput.getJid();
 				} 
-				logWrapper.debug("jid = %s", jid);
-                return jid;
+				logWrapper.debug("ret = %s", ret);
+                return ret;
             }
         } finally {
             closeResource(entity);
