@@ -298,6 +298,7 @@ public class SaltApiNodeStepPlugin implements NodeStepPlugin {
      * @throws HttpException
      *             if there was a communication failure with salt-api
      * @throws InterruptedException
+     * @throws InterruptedException
      */
     protected String submitJob(SaltApiCapability capability, HttpClient client, String authToken, String minionId, Set<String> secureData) throws HttpException, IOException,
             SaltApiException, SaltTargettingMismatchException, InterruptedException {
@@ -310,8 +311,8 @@ public class SaltApiNodeStepPlugin implements NodeStepPlugin {
 		if ("state.orchestrate".equalsIgnoreCase(args.get(0))) {
 		   resource = "/run";
 		   params.add(new BasicNameValuePair("client", "runner"));
-		   params.add(new BasicNameValuePair("username", "rundeck"));
-		   params.add(new BasicNameValuePair("password", "rundeck"));
+		   params.add(new BasicNameValuePair("username", "salt-api-infra"));
+		   params.add(new BasicNameValuePair("password", "salt-api-infra"));
 		   params.add(new BasicNameValuePair("eauth", "pam"));
 		}
         
